@@ -2,4 +2,4 @@ manual/*
 eval/*
 *.py[co]
 .DS_Store
-
+.idea
