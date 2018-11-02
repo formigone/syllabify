@@ -30,32 +30,32 @@ try:
 except NameError:
     xrange = range
 
-## constants
-SLAX   = {'IH1', 'IH2', 'EH1', 'EH2', 'AE1', 'AE2', 'AH1', 'AH2',
-                                                    'UH1', 'UH2',}
+# constants
+SLAX = {'IH1', 'IH2', 'EH1', 'EH2', 'AE1', 'AE2', 'AH1', 'AH2',
+        'UH1', 'UH2', }
 VOWELS = {'IY1', 'IY2', 'IY0', 'EY1', 'EY2', 'EY0', 'AA1', 'AA2', 'AA0',
           'ER1', 'ER2', 'ER0', 'AW1', 'AW2', 'AW0', 'AO1', 'AO2', 'AO0',
           'AY1', 'AY2', 'AY0', 'OW1', 'OW2', 'OW0', 'OY1', 'OY2', 'OY0',
           'IH0', 'EH0', 'AE0', 'AH0', 'UH0', 'UW1', 'UW2', 'UW0', 'UW',
-          'IY',  'EY',  'AA',  'ER',   'AW', 'AO',  'AY',  'OW',  'OY',
-          'UH',  'IH',  'EH',  'AE',  'AH',  'UH',} | SLAX
+          'IY', 'EY', 'AA', 'ER', 'AW', 'AO', 'AY', 'OW', 'OY',
+          'UH', 'IH', 'EH', 'AE', 'AH', 'UH', } | SLAX
 
-## licit medial onsets
-
+# licit medial onsets
 O2 = {('P', 'R'), ('T', 'R'), ('K', 'R'), ('B', 'R'), ('D', 'R'),
       ('G', 'R'), ('F', 'R'), ('TH', 'R'),
       ('P', 'L'), ('K', 'L'), ('B', 'L'), ('G', 'L'),
       ('F', 'L'), ('S', 'L'),
       ('K', 'W'), ('G', 'W'), ('S', 'W'),
       ('S', 'P'), ('S', 'T'), ('S', 'K'),
-      ('HH', 'Y'), # "clerihew"
-      ('R', 'W'),}
-O3 = {('S', 'T', 'R'), ('S', 'K', 'L'), ('T', 'R', 'W')} # "octroi"
+      ('HH', 'Y'),  # "clerihew"
+      ('R', 'W'), }
+O3 = {('S', 'T', 'R'), ('S', 'K', 'L'), ('T', 'R', 'W')}  # "octroi"
+
 
 # This does not represent anything like a complete list of onsets, but
 # merely those that need to be maximized in medial position.
 
-def syllabify(pron, alaska_rule=True):
+def syllabify(pron, alaska_rule=True, flatten=True):
     """
     Syllabifies a CMU dictionary (ARPABET) word string
 
@@ -142,8 +142,16 @@ def syllabify(pron, alaska_rule=True):
     '-IH0-N.S-EY1-N'
     >>> pprint(syllabify('IH0 K S K L UW1 D'.split())) # exclude
     '-IH0-K.S K L-UW1-D'
+
+    Parameters
+    ----------
+    pron : list A list of ARPA tokens. Example: ['B', 'AA1', 'B', 'IY0']
+    alaska_rule : bool Whether to use the Alaska rule
+    flatten : bool Whether the output should be formatted as a single list where each element is a syllable
+                  (as opposed to a zip). When flattened, the output will be a list where each element is a syllable,
+                  represented by a list of phonemes. Example:
     """
-    ## main pass
+    # main pass
     mypron = list(pron)
     nuclei = []
     onsets = []
@@ -151,10 +159,10 @@ def syllabify(pron, alaska_rule=True):
     for (j, seg) in enumerate(mypron):
         if seg in VOWELS:
             nuclei.append([seg])
-            onsets.append(mypron[i + 1:j]) # actually interludes, r.n.
+            onsets.append(mypron[i + 1:j])  # actually interludes, r.n.
             i = j
     codas = [mypron[i + 1:]]
-    ## resolve disputes and compute coda
+    # resolve disputes and compute coda
     for i in xrange(1, len(onsets)):
         coda = []
         # boundary cases
@@ -162,8 +170,8 @@ def syllabify(pron, alaska_rule=True):
             nuclei[i - 1].append(onsets[i].pop(0))
         if len(onsets[i]) > 2 and onsets[i][-1] == 'Y':
             nuclei[i].insert(0, onsets[i].pop())
-        if len(onsets[i]) > 1 and alaska_rule and nuclei[i-1][-1] in SLAX \
-                                              and onsets[i][0] == 'S':
+        if len(onsets[i]) > 1 and alaska_rule and nuclei[i - 1][-1] in SLAX \
+                and onsets[i][0] == 'S':
             coda.append(onsets[i].pop(0))
         # onset maximization
         depth = 1
@@ -175,12 +183,14 @@ def syllabify(pron, alaska_rule=True):
         # store coda
         codas.insert(i - 1, coda)
 
-    ## verify that all segments are included in the ouput
+    # verify that all segments are included in the ouput
     output = list(zip(onsets, nuclei, codas))
     flat_output = list(chain.from_iterable(chain.from_iterable(output)))
     if flat_output != mypron:
-        raise ValueError("could not syllabify {}, got {}".format(mypron,
-                                                           flat_output))
+        raise ValueError("could not syllabify {}, got {}".format(mypron, flat_output))
+
+    if flatten:
+        output = [a + b + c for a, b, c in output]
     return output
 
 
@@ -204,4 +214,5 @@ def destress(syllab):
 
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

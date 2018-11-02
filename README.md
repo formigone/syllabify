@@ -21,3 +21,16 @@ You can install this project via `pip` with:
 ```bash
 pip install git+https://github.com/formigone/syllabify.git
 ```
+
+# Example
+
+```python
+from formigone.syllabify import syllabify
+
+arpa = ['L', 'ER1', 'N', 'IH0', 'NG']
+syllabify(arpa, flatten=True)
+# => [
+#   ['L', 'ER1'],
+#   ['N', 'IH0', 'NG']
+# ]
+```
