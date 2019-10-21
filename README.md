@@ -19,7 +19,7 @@ Since I wanted both of those things in a project I found myself working on one d
 You can install this project via `pip` with:
 
 ```bash
-pip install git+https://github.com/formigone/syllabify.git
+pip install FormigoneSyllabify
 ```
 
 # Example

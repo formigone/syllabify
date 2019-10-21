@@ -8,4 +8,6 @@ setup(
     author='Rodrigo Silveira',
     author_email='webmaster@rodrigo-silveira.com',
     url='https://github.com/formigone/syllabify',
+
+    download_url='https://github.com/formigone/syllabify/archive/v0.0.1.tar.gz',
 )
